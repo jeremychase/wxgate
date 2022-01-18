@@ -16,8 +16,11 @@ var address net.IP
 var ipv4 bool
 var ipv6 bool
 var port uint
+var altitude float64
 var callsign string
 var ssid string
+var longitude float64
+var latitude float64
 
 func main() {
 	os.Exit(body())
@@ -39,16 +42,28 @@ func body() int {
 	return 0
 }
 
+// bug(high) add units
 func parseArgs() error {
 	var inputAddress string
+	flag.Float64Var(&altitude, "altitude", 0.0, "altitude")
 	flag.BoolVar(&ipv4, "4", false, "IPv4 only")
 	flag.BoolVar(&ipv6, "6", false, "IPv6 only")
+	flag.Float64Var(&longitude, "longitude", 0.0, "longitude (decimal)")
+	flag.Float64Var(&latitude, "latitude", 0.0, "latitude (decimal)")
 	flag.StringVar(&callsign, "callsign", "", "callsign")
 	flag.StringVar(&ssid, "ssid", "15", "ssid")
 	flag.UintVar(&port, "port", DEFAULT_PORT, "tcp port (automatic 0)")
 	flag.StringVar(&inputAddress, "address", DEFAULT_ADDRESS_IPV4, "IP address")
 
 	flag.Parse()
+
+	// longitude and latitude validation
+	if longitude == 0.0 {
+		return fmt.Errorf("invalid longitude")
+	}
+	if latitude == 0.0 {
+		return fmt.Errorf("invalid latitude")
+	}
 
 	// ipv4/ipv6 validation
 	if ipv4 && ipv6 {

@@ -16,7 +16,7 @@ func server(network string, address net.IP, port uint) error {
 	http.HandleFunc("/", catchall)
 	http.HandleFunc("/wxigate/awp/v1", v1)
 
-	_, err = fmt.Printf("%s-%s listening on: %s\n", callsign, ssid, listener.Addr().String())
+	_, err = fmt.Printf("%s-%s %f %f listening on: %s\n", callsign, ssid, longitude, latitude, listener.Addr().String())
 	if err != nil {
 		return err
 	}
