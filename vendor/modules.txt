@@ -1,0 +1,6 @@
+# github.com/ebarkie/aprs v1.0.3
+## explicit; go 1.15
+github.com/ebarkie/aprs
+# github.com/ebarkie/weatherlink v1.0.2
+## explicit; go 1.14
+github.com/ebarkie/weatherlink/units
