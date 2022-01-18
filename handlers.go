@@ -19,14 +19,18 @@ func v1(w http.ResponseWriter, req *http.Request) {
 	}
 	wx.Timestamp = time.Now() // BUG(low) use "dateutc" in query
 
-	wx.Altimeter = altitude
-
 	query := req.URL.Query()
 
 	for k, v := range query {
 		// fmt.Printf("k/v: %v/%v\n", k, v)
 
 		switch k {
+		case "baromrelin":
+			baromrelin, err := strconv.ParseFloat(v[0], 64)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+			}
+			wx.Altimeter = baromrelin
 		case "tempf":
 			temp, err := strconv.ParseFloat(v[0], 64)
 			if err != nil {
