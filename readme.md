@@ -8,7 +8,7 @@
 1. Unarchive
 1. Run it, for example:
 ```
-./wxigate -callsign AC1LQ -latitude 41.38265020114848 -longitude "-72.43430504603869" -altitude 50
+./wxigate -callsign YOUR_CALL -latitude 12.345 -longitude "-12.345"
 ```
 
 ## Weather Station setup
