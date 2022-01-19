@@ -12,6 +12,7 @@ const DEFAULT_PORT uint = 8080 // BUG(high) move
 const DEFAULT_ADDRESS_IPV4 string = "0.0.0.0"
 const DEFAULT_ADDRESS_IPV6 string = "::"
 
+var inputAddress string
 var address net.IP
 var ipv4 bool
 var ipv6 bool
@@ -20,13 +21,21 @@ var callsign string
 var ssid string
 var longitude float64
 var latitude float64
+var showVersion bool
 
 func main() {
 	os.Exit(body())
 }
 
 func body() int {
-	err := parseArgs()
+	parseArgs()
+
+	if showVersion {
+		printVersion()
+		return 0
+	}
+
+	err := validate()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		return 1
@@ -41,11 +50,10 @@ func body() int {
 	return 0
 }
 
-// bug(high) add units
-func parseArgs() error {
-	var inputAddress string
+func parseArgs() {
 	flag.BoolVar(&ipv4, "4", false, "IPv4 only")
 	flag.BoolVar(&ipv6, "6", false, "IPv6 only")
+	flag.BoolVar(&showVersion, "version", false, "show version")
 	flag.Float64Var(&longitude, "longitude", 0.0, "longitude (decimal)")
 	flag.Float64Var(&latitude, "latitude", 0.0, "latitude (decimal)")
 	flag.StringVar(&callsign, "callsign", "", "callsign")
@@ -54,7 +62,9 @@ func parseArgs() error {
 	flag.StringVar(&inputAddress, "address", DEFAULT_ADDRESS_IPV4, "IP address")
 
 	flag.Parse()
+}
 
+func validate() error {
 	// longitude and latitude validation
 	if longitude == 0.0 {
 		return fmt.Errorf("invalid longitude")
@@ -124,4 +134,13 @@ func listenNetwork(ipv4 bool, ipv6 bool) string {
 	}
 
 	return "tcp"
+}
+
+func printVersion() {
+	version, present := os.LookupEnv("BUILD_VERSION")
+	if !present {
+		version = "dev"
+	}
+	fmt.Println(version)
+
 }
