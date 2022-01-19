@@ -12,7 +12,7 @@ const DEFAULT_PORT uint = 8080 // BUG(high) move
 const DEFAULT_ADDRESS_IPV4 string = "0.0.0.0"
 const DEFAULT_ADDRESS_IPV6 string = "::"
 
-var Version = "development"
+var Version = "-dev"
 
 // Program options
 var inputAddress string
@@ -34,7 +34,7 @@ func body() int {
 	parseArgs()
 
 	if showVersion {
-		fmt.Println(Version)
+		fmt.Printf("v%s\n", Version)
 		return 0
 	}
 
