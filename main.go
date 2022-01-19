@@ -12,6 +12,9 @@ const DEFAULT_PORT uint = 8080 // BUG(high) move
 const DEFAULT_ADDRESS_IPV4 string = "0.0.0.0"
 const DEFAULT_ADDRESS_IPV6 string = "::"
 
+var Version = "development"
+
+// Program options
 var inputAddress string
 var address net.IP
 var ipv4 bool
@@ -31,7 +34,7 @@ func body() int {
 	parseArgs()
 
 	if showVersion {
-		printVersion()
+		fmt.Println(Version)
 		return 0
 	}
 
@@ -134,13 +137,4 @@ func listenNetwork(ipv4 bool, ipv6 bool) string {
 	}
 
 	return "tcp"
-}
-
-func printVersion() {
-	version, present := os.LookupEnv("BUILD_VERSION")
-	if !present {
-		version = "dev"
-	}
-	fmt.Println(version)
-
 }
