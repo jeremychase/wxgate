@@ -30,3 +30,7 @@ This tool was built for fun. Use at your own risk.
 
 1. Install `go`
 1. `go build .`
+
+## Notes
+
+1. ipv6 was tried and removed because Ambient Weather station didn't seem to connect

@@ -10,15 +10,12 @@ import (
 
 const DEFAULT_PORT uint = 8080 // BUG(high) move
 const DEFAULT_ADDRESS_IPV4 string = "0.0.0.0"
-const DEFAULT_ADDRESS_IPV6 string = "::"
 
 var Version = "-dev"
 
 // Program options
 var inputAddress string
 var address net.IP
-var ipv4 bool
-var ipv6 bool
 var port uint
 var callsign string
 var comment string
@@ -45,7 +42,7 @@ func body() int {
 		return 1
 	}
 
-	err = server(listenNetwork(ipv4, ipv6), address, port)
+	err = server(address, port)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		return 1
@@ -55,8 +52,6 @@ func body() int {
 }
 
 func parseArgs() {
-	flag.BoolVar(&ipv4, "4", false, "IPv4 only")
-	flag.BoolVar(&ipv6, "6", false, "IPv6 only")
 	flag.BoolVar(&showVersion, "version", false, "show version")
 	flag.Float64Var(&longitude, "longitude", 0.0, "longitude (decimal)")
 	flag.Float64Var(&latitude, "latitude", 0.0, "latitude (decimal)")
@@ -78,28 +73,10 @@ func validate() error {
 		return fmt.Errorf("invalid latitude")
 	}
 
-	// ipv4/ipv6 validation
-	if ipv4 && ipv6 {
-		return fmt.Errorf("ipv4 and ipv6 mutually exclusive")
-	}
-
-	// default to ipv4
-	if !ipv6 {
-		ipv4 = true
-	}
-
 	// address validation
 	address = net.ParseIP(inputAddress)
 	if address == nil {
 		return fmt.Errorf("invalid address")
-	}
-
-	// fix default address for ipv6
-	if ipv6 && net.ParseIP(DEFAULT_ADDRESS_IPV4).Equal(address) {
-		address = net.ParseIP(DEFAULT_ADDRESS_IPV6)
-		if address == nil {
-			return fmt.Errorf("invalid default ipv6 address")
-		}
 	}
 
 	// port validation
@@ -129,14 +106,4 @@ func validate() error {
 	ssid = strings.Trim(ssid, "-")
 
 	return nil
-}
-
-func listenNetwork(ipv4 bool, ipv6 bool) string {
-	if ipv4 {
-		return "tcp4"
-	} else if ipv6 {
-		return "tcp6"
-	}
-
-	return "tcp"
 }

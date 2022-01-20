@@ -6,8 +6,9 @@ import (
 	"net/http"
 )
 
-func server(network string, address net.IP, port uint) error {
-	listener, err := net.Listen(network, listenAddress(address, port))
+func server(address net.IP, port uint) error {
+	// tcp6 was attempted but wasn't supported by weather station
+	listener, err := net.Listen("tcp4", listenAddress(address, port))
 	if err != nil {
 		return err
 	}
