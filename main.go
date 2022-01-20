@@ -21,6 +21,7 @@ var ipv4 bool
 var ipv6 bool
 var port uint
 var callsign string
+var comment string
 var ssid string
 var longitude float64
 var latitude float64
@@ -60,6 +61,7 @@ func parseArgs() {
 	flag.Float64Var(&longitude, "longitude", 0.0, "longitude (decimal)")
 	flag.Float64Var(&latitude, "latitude", 0.0, "latitude (decimal)")
 	flag.StringVar(&callsign, "callsign", "", "callsign")
+	flag.StringVar(&comment, "comment", "", "comment")
 	flag.StringVar(&ssid, "ssid", "15", "ssid")
 	flag.UintVar(&port, "port", DEFAULT_PORT, "tcp port (automatic 0)")
 	flag.StringVar(&inputAddress, "address", DEFAULT_ADDRESS_IPV4, "IP address")

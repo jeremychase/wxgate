@@ -12,11 +12,15 @@ import (
 )
 
 func v1(w http.ResponseWriter, req *http.Request) {
+	aprs.SwName = "wxigate-v"
+	aprs.SwVers = Version
+
 	wx := aprs.Wx{
 		Lat:  latitude,
 		Lon:  longitude,
-		Type: "DvsVP2+", // BUG(medium) flag
+		Type: comment,
 	}
+
 	wx.Timestamp = time.Now() // BUG(low) use "dateutc" in query
 
 	query := req.URL.Query()
