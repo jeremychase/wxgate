@@ -29,14 +29,17 @@ func v1(w http.ResponseWriter, req *http.Request) {
 	aprs.SwName = "wxigate-V"
 	aprs.SwVers = Version
 
-	wx.Timestamp = time.Now() // BUG(low) use "dateutc" in query
-
 	query := req.URL.Query()
 
 	for k, v := range query {
-		// fmt.Printf("k/v: %v/%v\n", k, v)
-
 		switch k {
+		case "dateutc":
+			layout := "2006-01-02 15:04:05"
+			dateutc, err := time.Parse(layout, v[0])
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+			}
+			wx.Timestamp = dateutc
 		case "baromrelin":
 			baromrelin, err := strconv.ParseFloat(v[0], 64)
 			if err != nil {
