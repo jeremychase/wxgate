@@ -45,8 +45,9 @@ builds:
       - 6
       - 7
 
+    # BUG(low) investigate stripping. unclear if '-s -w' is optimal
     ldflags:
-      - -X main.Version={{.Version}}
+      - -s -w -X main.Version={{.Version}}
 
 archives:
   - replacements:
