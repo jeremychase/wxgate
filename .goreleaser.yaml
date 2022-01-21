@@ -12,7 +12,7 @@ builds:
       - BUILD_VERSION={{ .Version }}
     goos:
       - aix
-      - android
+      # - android
       - darwin
       - dragonfly
       - freebsd
