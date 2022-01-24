@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"fmt"
@@ -18,14 +18,13 @@ func v1(w http.ResponseWriter, req *http.Request) {
 		Type: comment,
 	}
 
-	// SwName are SwVers are are concatenated in the 'comment' field and then
+	// SwName are SwVers are concatenated in the 'comment' field and then
 	// immediately followed by the Wx.Type. This is performed in the upstream
 	// aprs library and looks like:
 	//
 	//   fmt.Sprintf("%s%s%s", aprs.SwName, aprs.SwVers, wx.Type)
 	//
-	// On aprs.fi a lowercase 'v%d' is get dropped, so that is why this
-	// is 'V'.
+	// On aprs.fi a lowercase 'v%d' gets dropped, so that is why this is 'V'.
 	aprs.SwName = "wxigate-V"
 	aprs.SwVers = Version
 
