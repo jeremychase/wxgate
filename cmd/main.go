@@ -13,21 +13,24 @@ const DEFAULT_ADDRESS_IPV4 string = "0.0.0.0"
 
 var Version = "-dev"
 
-// Program options
-var inputAddress string
-var address net.IP
-var port uint
-var callsign string
-var comment string
-var ssid string
-var longitude float64
-var latitude float64
-var showVersion bool
+type options struct {
+	inputAddress string
+	address      net.IP
+	port         uint
+	callsign     string
+	comment      string
+	ssid         string
+	longitude    float64
+	latitude     float64
+	showVersion  bool
+}
+
+var opts options = options{}
 
 func Body() int {
 	parseArgs()
 
-	if showVersion {
+	if opts.showVersion {
 		fmt.Printf("v%s\n", Version)
 		return 0
 	}
@@ -38,7 +41,7 @@ func Body() int {
 		return 1
 	}
 
-	err = server(address, port)
+	err = server(opts.address, opts.port)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		return 1
@@ -48,58 +51,58 @@ func Body() int {
 }
 
 func parseArgs() {
-	flag.BoolVar(&showVersion, "version", false, "show version")
-	flag.Float64Var(&longitude, "longitude", 0.0, "longitude (decimal)")
-	flag.Float64Var(&latitude, "latitude", 0.0, "latitude (decimal)")
-	flag.StringVar(&callsign, "callsign", "", "callsign")
-	flag.StringVar(&comment, "comment", "", "comment")
-	flag.StringVar(&ssid, "ssid", "15", "ssid")
-	flag.UintVar(&port, "port", DEFAULT_PORT, "tcp port (automatic 0)")
-	flag.StringVar(&inputAddress, "address", DEFAULT_ADDRESS_IPV4, "IP address")
+	flag.BoolVar(&opts.showVersion, "version", false, "show version")
+	flag.Float64Var(&opts.longitude, "longitude", 0.0, "longitude (decimal)")
+	flag.Float64Var(&opts.latitude, "latitude", 0.0, "latitude (decimal)")
+	flag.StringVar(&opts.callsign, "callsign", "", "callsign")
+	flag.StringVar(&opts.comment, "comment", "", "comment")
+	flag.StringVar(&opts.ssid, "ssid", "15", "ssid")
+	flag.UintVar(&opts.port, "port", DEFAULT_PORT, "tcp port (automatic 0)")
+	flag.StringVar(&opts.inputAddress, "address", DEFAULT_ADDRESS_IPV4, "IP address")
 
 	flag.Parse()
 }
 
 func validate() error {
 	// longitude and latitude validation
-	if longitude == 0.0 {
+	if opts.longitude == 0.0 {
 		return fmt.Errorf("invalid longitude")
 	}
-	if latitude == 0.0 {
+	if opts.latitude == 0.0 {
 		return fmt.Errorf("invalid latitude")
 	}
 
 	// address validation
-	address = net.ParseIP(inputAddress)
-	if address == nil {
+	opts.address = net.ParseIP(opts.inputAddress)
+	if opts.address == nil {
 		return fmt.Errorf("invalid address")
 	}
 
 	// port validation
 	const max_port = 65535
-	if port > max_port {
+	if opts.port > max_port {
 		return fmt.Errorf("max port (%d)", max_port)
 	}
 
 	// ssid validation
-	if len(ssid) > 2 {
+	if len(opts.ssid) > 2 {
 		return fmt.Errorf("ssid too long")
-	} else if len(ssid) < 1 {
+	} else if len(opts.ssid) < 1 {
 		return fmt.Errorf("ssid empty")
 	}
 
 	// callsign validation
-	if len(callsign) == 0 {
+	if len(opts.callsign) == 0 {
 		return fmt.Errorf("missing callsign")
 	}
-	if len(callsign) > 8 { // BUG(medium) fix
+	if len(opts.callsign) > 8 { // BUG(medium) fix
 		return fmt.Errorf("callsign too long")
-	} else if len(callsign) < 3 { // BUG(medium) fix
+	} else if len(opts.callsign) < 3 { // BUG(medium) fix
 		return fmt.Errorf("callsign too short")
 	}
 
-	callsign = strings.Trim(callsign, "-")
-	ssid = strings.Trim(ssid, "-")
+	opts.callsign = strings.Trim(opts.callsign, "-")
+	opts.ssid = strings.Trim(opts.ssid, "-")
 
 	return nil
 }

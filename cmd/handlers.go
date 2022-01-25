@@ -13,9 +13,9 @@ import (
 
 func v1(w http.ResponseWriter, req *http.Request) {
 	wx := aprs.Wx{
-		Lat:  latitude,
-		Lon:  longitude,
-		Type: comment,
+		Lat:  opts.latitude,
+		Lon:  opts.longitude,
+		Type: opts.comment,
 	}
 
 	// SwName are SwVers are concatenated in the 'comment' field and then
@@ -106,7 +106,7 @@ func v1(w http.ResponseWriter, req *http.Request) {
 
 	f := aprs.Frame{
 		Dst:  aprs.Addr{Call: "APRS"},
-		Src:  aprs.Addr{Call: fmt.Sprintf("%s-%s", callsign, ssid)},
+		Src:  aprs.Addr{Call: fmt.Sprintf("%s-%s", opts.callsign, opts.ssid)},
 		Path: aprs.Path{aprs.Addr{Call: "TCPIP", Repeated: true}},
 		Text: wx.String(),
 	}
