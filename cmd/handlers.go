@@ -11,11 +11,11 @@ import (
 	"github.com/ebarkie/aprs"
 )
 
-func v1(w http.ResponseWriter, req *http.Request) {
+func (h *awpHandlerV1) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	wx := aprs.Wx{
-		Lat:  opts.latitude,
-		Lon:  opts.longitude,
-		Type: opts.comment,
+		Lat:  h.Options.latitude,
+		Lon:  h.Options.longitude,
+		Type: h.Options.comment,
 	}
 
 	// SwName are SwVers are concatenated in the 'comment' field and then
@@ -106,7 +106,7 @@ func v1(w http.ResponseWriter, req *http.Request) {
 
 	f := aprs.Frame{
 		Dst:  aprs.Addr{Call: "APRS"},
-		Src:  aprs.Addr{Call: fmt.Sprintf("%s-%s", opts.callsign, opts.ssid)},
+		Src:  aprs.Addr{Call: fmt.Sprintf("%s-%s", h.Options.callsign, h.Options.ssid)},
 		Path: aprs.Path{aprs.Addr{Call: "TCPIP", Repeated: true}},
 		Text: wx.String(),
 	}
@@ -127,9 +127,10 @@ func errorHandler(w http.ResponseWriter, req *http.Request, status int) {
 }
 
 // BUG(medium-high) update
-func catchall(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		errorHandler(w, r, http.StatusNotFound)
+func catchall(w http.ResponseWriter, req *http.Request) {
+
+	if req.URL.Path != "/" {
+		errorHandler(w, req, http.StatusNotFound)
 		return
 	}
 	fmt.Fprint(w, "welcome home")

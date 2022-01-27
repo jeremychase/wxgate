@@ -14,7 +14,7 @@ const DEFAULT_ADDRESS_IPV4 string = "0.0.0.0"
 var Version = "-dev"
 
 type options struct {
-	inputAddress string
+	inputAddress string // BUG(low) remove
 	address      net.IP
 	port         uint
 	callsign     string
@@ -25,23 +25,25 @@ type options struct {
 	showVersion  bool
 }
 
-var opts options = options{}
+type awpHandlerV1 struct {
+	Options options
+}
 
 func Body() int {
-	parseArgs()
+	opts := parseArgs()
 
 	if opts.showVersion {
 		fmt.Printf("v%s\n", Version)
 		return 0
 	}
 
-	err := validate()
+	err := validate(opts)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		return 1
 	}
 
-	err = server(opts.address, opts.port)
+	err = server(opts)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		return 1
@@ -50,7 +52,9 @@ func Body() int {
 	return 0
 }
 
-func parseArgs() {
+func parseArgs() options {
+	opts := options{}
+
 	flag.BoolVar(&opts.showVersion, "version", false, "show version")
 	flag.Float64Var(&opts.longitude, "longitude", 0.0, "longitude (decimal)")
 	flag.Float64Var(&opts.latitude, "latitude", 0.0, "latitude (decimal)")
@@ -61,9 +65,11 @@ func parseArgs() {
 	flag.StringVar(&opts.inputAddress, "address", DEFAULT_ADDRESS_IPV4, "IP address")
 
 	flag.Parse()
+
+	return opts
 }
 
-func validate() error {
+func validate(opts options) error {
 	// longitude and latitude validation
 	if opts.longitude == 0.0 {
 		return fmt.Errorf("invalid longitude")

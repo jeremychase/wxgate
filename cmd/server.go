@@ -6,16 +6,18 @@ import (
 	"net/http"
 )
 
-func server(address net.IP, port uint) error {
+func server(opts options) error {
 	// tcp6 was attempted but wasn't supported by weather station
-	listener, err := net.Listen("tcp4", listenAddress(address, port))
+	listener, err := net.Listen("tcp4", listenAddress(opts.address, opts.port))
 	if err != nil {
 		return err
 	}
 
+	// mux := http.NewServeMux()
+
 	// Routes
 	http.HandleFunc("/", catchall)
-	http.HandleFunc("/wxigate/awp/v1", v1)
+	http.Handle("/wxigate/awp/v1", &awpHandlerV1{Options: opts})
 
 	_, err = fmt.Printf("%s-%s %f %f listening on: %s\n", opts.callsign, opts.ssid, opts.longitude, opts.latitude, listener.Addr().String())
 	if err != nil {
