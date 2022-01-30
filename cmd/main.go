@@ -13,34 +13,16 @@ const DEFAULT_ADDRESS_IPV4 string = "0.0.0.0"
 
 var Version = "-dev"
 
-type options struct {
-	inputAddress string // BUG(low) remove
-	address      net.IP
-	port         uint
-	callsign     string
-	comment      string
-	ssid         string
-	longitude    float64
-	latitude     float64
-	showVersion  bool
-}
-
-type awpHandlerV1 struct {
-	Options options
-}
-
 func Body() int {
-	opts := parseArgs()
+	opts, err := parseArgs()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		return 1
+	}
 
 	if opts.showVersion {
 		fmt.Printf("v%s\n", Version)
 		return 0
-	}
-
-	err := validate(opts)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-		return 1
 	}
 
 	err = server(opts)
@@ -52,7 +34,7 @@ func Body() int {
 	return 0
 }
 
-func parseArgs() options {
+func parseArgs() (options, error) {
 	opts := options{}
 
 	flag.BoolVar(&opts.showVersion, "version", false, "show version")
@@ -66,49 +48,54 @@ func parseArgs() options {
 
 	flag.Parse()
 
-	return opts
+	opts, err := validate(opts)
+	if err != nil {
+		return opts, err
+	}
+
+	return opts, nil
 }
 
-func validate(opts options) error {
+func validate(opts options) (options, error) {
 	// longitude and latitude validation
 	if opts.longitude == 0.0 {
-		return fmt.Errorf("invalid longitude")
+		return opts, fmt.Errorf("invalid longitude")
 	}
 	if opts.latitude == 0.0 {
-		return fmt.Errorf("invalid latitude")
+		return opts, fmt.Errorf("invalid latitude")
 	}
 
 	// address validation
 	opts.address = net.ParseIP(opts.inputAddress)
 	if opts.address == nil {
-		return fmt.Errorf("invalid address")
+		return opts, fmt.Errorf("invalid address")
 	}
 
 	// port validation
 	const max_port = 65535
 	if opts.port > max_port {
-		return fmt.Errorf("max port (%d)", max_port)
+		return opts, fmt.Errorf("max port (%d)", max_port)
 	}
 
 	// ssid validation
 	if len(opts.ssid) > 2 {
-		return fmt.Errorf("ssid too long")
+		return opts, fmt.Errorf("ssid too long")
 	} else if len(opts.ssid) < 1 {
-		return fmt.Errorf("ssid empty")
+		return opts, fmt.Errorf("ssid empty")
 	}
 
 	// callsign validation
 	if len(opts.callsign) == 0 {
-		return fmt.Errorf("missing callsign")
+		return opts, fmt.Errorf("missing callsign")
 	}
 	if len(opts.callsign) > 8 { // BUG(medium) fix
-		return fmt.Errorf("callsign too long")
+		return opts, fmt.Errorf("callsign too long")
 	} else if len(opts.callsign) < 3 { // BUG(medium) fix
-		return fmt.Errorf("callsign too short")
+		return opts, fmt.Errorf("callsign too short")
 	}
 
 	opts.callsign = strings.Trim(opts.callsign, "-")
 	opts.ssid = strings.Trim(opts.ssid, "-")
 
-	return nil
+	return opts, nil
 }

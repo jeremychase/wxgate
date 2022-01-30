@@ -11,11 +11,13 @@ import (
 	"github.com/ebarkie/aprs"
 )
 
-func (h *awpHandlerV1) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+func awpHandlerV1(w http.ResponseWriter, req *http.Request) {
+	opts := ctxOptions(req.Context())
+
 	wx := aprs.Wx{
-		Lat:  h.Options.latitude,
-		Lon:  h.Options.longitude,
-		Type: h.Options.comment,
+		Lat:  opts.latitude,
+		Lon:  opts.longitude,
+		Type: opts.comment,
 	}
 
 	// SwName are SwVers are concatenated in the 'comment' field and then
@@ -106,7 +108,7 @@ func (h *awpHandlerV1) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	f := aprs.Frame{
 		Dst:  aprs.Addr{Call: "APRS"},
-		Src:  aprs.Addr{Call: fmt.Sprintf("%s-%s", h.Options.callsign, h.Options.ssid)},
+		Src:  aprs.Addr{Call: fmt.Sprintf("%s-%s", opts.callsign, opts.ssid)},
 		Path: aprs.Path{aprs.Addr{Call: "TCPIP", Repeated: true}},
 		Text: wx.String(),
 	}
