@@ -15,7 +15,7 @@ func server(opts options) error {
 	}
 
 	// Routes
-	http.HandleFunc("/", catchall)
+	http.HandleFunc("/", defaultHandler)
 	http.HandleFunc("/wxigate/awp/v1", awpHandlerV1)
 
 	_, err = fmt.Printf("%s-%s %f %f listening on: %s\n", opts.callsign, opts.ssid, opts.longitude, opts.latitude, listener.Addr().String())

@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -12,7 +11,12 @@ import (
 )
 
 func awpHandlerV1(w http.ResponseWriter, req *http.Request) {
-	opts := ctxOptions(req.Context())
+	opts, err := ctxOptions(req.Context())
+	if err != nil {
+		msg := fmt.Sprintf("error: %s", err)
+		errorHandler(w, req, msg, http.StatusInternalServerError)
+		return
+	}
 
 	wx := aprs.Wx{
 		Lat:  opts.latitude,
@@ -112,28 +116,39 @@ func awpHandlerV1(w http.ResponseWriter, req *http.Request) {
 		Path: aprs.Path{aprs.Addr{Call: "TCPIP", Repeated: true}},
 		Text: wx.String(),
 	}
-	err := f.SendIS("tcp://cwop.aprs.net:14580", -1) //BUG(medium) flag
+	err = f.SendIS("tcp://cwop.aprs.net:14580", -1) //BUG(medium) flag
 	if err != nil {
-		log.Printf("Upload error: %s", err) // BUG(medium) handle
-	}
-}
-
-// BUG(medium-high) update
-func errorHandler(w http.ResponseWriter, req *http.Request, status int) {
-	w.WriteHeader(status)
-	if status == http.StatusNotFound {
-		fmt.Fprint(w, "404")
-	}
-
-	fmt.Println(req)
-}
-
-// BUG(medium-high) update
-func catchall(w http.ResponseWriter, req *http.Request) {
-
-	if req.URL.Path != "/" {
-		errorHandler(w, req, http.StatusNotFound)
+		msg := fmt.Sprintf("Upload error: %s", err)
+		errorHandler(w, req, msg, http.StatusServiceUnavailable)
 		return
 	}
-	fmt.Fprint(w, "welcome home")
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func errorHandler(w http.ResponseWriter, req *http.Request, msg string, status int) {
+
+	// server output
+	stream := os.Stderr
+	if status == http.StatusNotFound {
+		stream = os.Stdout
+	}
+	fmt.Fprintf(
+		stream,
+		"%v -- \"%v %v %v\" %d %s\n",
+		req.RemoteAddr,
+		req.Method,
+		req.URL.Path,
+		req.Proto,
+		status,
+		msg,
+	)
+
+	// response
+	w.WriteHeader(status)
+	fmt.Fprintf(w, "%d - %s", status, msg)
+}
+
+func defaultHandler(w http.ResponseWriter, req *http.Request) {
+	errorHandler(w, req, "not found", http.StatusNotFound)
 }

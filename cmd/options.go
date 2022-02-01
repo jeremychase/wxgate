@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"context"
-	"log"
+	"errors"
 	"net"
 )
 
@@ -24,11 +24,11 @@ func ctxWithOptions(ctx context.Context, opts options) context.Context {
 	return context.WithValue(context.Background(), key, opts)
 }
 
-func ctxOptions(ctx context.Context) options {
+func ctxOptions(ctx context.Context) (options, error) {
 	opts, ok := ctx.Value(optionKey("options")).(options)
 	if !ok {
-		log.Printf("type assertion failure") // BUG(high) handle
+		return opts, errors.New("unable to return options")
 	}
 
-	return opts
+	return opts, nil
 }
