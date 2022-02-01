@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const DEFAULT_PORT uint = 8080 // BUG(high) move
+const DEFAULT_PORT uint = 44244
 const DEFAULT_ADDRESS_IPV4 string = "0.0.0.0"
 
 var Version = "-dev"
