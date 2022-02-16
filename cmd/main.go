@@ -25,6 +25,13 @@ func Body() int {
 		return 0
 	}
 
+	opts, err = validate(opts)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n\n", err)
+		flag.Usage()
+		return 1
+	}
+
 	err = server(opts)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
@@ -44,14 +51,9 @@ func parseArgs() (options, error) {
 	flag.StringVar(&opts.comment, "comment", "", "comment")
 	flag.StringVar(&opts.ssid, "ssid", "15", "ssid")
 	flag.UintVar(&opts.port, "port", DEFAULT_PORT, "tcp port (automatic 0)")
-	flag.StringVar(&opts.inputAddress, "address", DEFAULT_ADDRESS_IPV4, "IP address")
+	flag.StringVar(&opts.argAddress, "address", DEFAULT_ADDRESS_IPV4, "IP address")
 
 	flag.Parse()
-
-	opts, err := validate(opts)
-	if err != nil {
-		return opts, err
-	}
 
 	return opts, nil
 }
@@ -66,7 +68,7 @@ func validate(opts options) (options, error) {
 	}
 
 	// address validation
-	opts.address = net.ParseIP(opts.inputAddress)
+	opts.address = net.ParseIP(opts.argAddress)
 	if opts.address == nil {
 		return opts, fmt.Errorf("invalid address")
 	}

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"net"
 	"net/http"
@@ -16,21 +15,15 @@ func server(opts options) error {
 
 	// Routes
 	http.HandleFunc("/", defaultHandler)
-	http.HandleFunc("/wxigate/awp/v1", awpHandlerV1)
+	http.Handle("/wxigate/awp/v1", awpHandlerV1(opts))
 
 	_, err = fmt.Printf("%s-%s %f %f listening on: %s\n", opts.callsign, opts.ssid, opts.longitude, opts.latitude, listener.Addr().String())
 	if err != nil {
 		return err
 	}
 
-	srvr := &http.Server{
-		BaseContext: func(_ net.Listener) context.Context {
-			return ctxWithOptions(context.Background(), opts)
-		},
-	}
-
 	// blocks until err
-	err = srvr.Serve(listener)
+	err = http.Serve(listener, nil)
 	if err != nil {
 		return err
 	}

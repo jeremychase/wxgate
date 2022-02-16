@@ -10,120 +10,115 @@ import (
 	"github.com/ebarkie/aprs"
 )
 
-func awpHandlerV1(w http.ResponseWriter, req *http.Request) {
-	opts, err := ctxOptions(req.Context())
-	if err != nil {
-		msg := fmt.Sprintf("error: %s", err)
-		errorHandler(w, req, msg, http.StatusInternalServerError)
-		return
-	}
-
-	wx := aprs.Wx{
-		Lat:  opts.latitude,
-		Lon:  opts.longitude,
-		Type: opts.comment,
-	}
-
-	// SwName are SwVers are concatenated in the 'comment' field and then
-	// immediately followed by the Wx.Type. This is performed in the upstream
-	// aprs library and looks like:
-	//
-	//   fmt.Sprintf("%s%s%s", aprs.SwName, aprs.SwVers, wx.Type)
-	//
-	// On aprs.fi a lowercase 'v%d' gets dropped, so that is why this is 'V'.
-	aprs.SwName = "wxigate-V"
-	aprs.SwVers = Version
-
-	query := req.URL.Query()
-
-	for k, v := range query {
-		switch k {
-		case "dateutc":
-			layout := "2006-01-02 15:04:05"
-			dateutc, err := time.Parse(layout, v[0])
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
-			}
-			wx.Timestamp = dateutc
-		case "baromrelin":
-			baromrelin, err := strconv.ParseFloat(v[0], 64)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
-			}
-			wx.Altimeter = baromrelin
-		case "tempf":
-			temp, err := strconv.ParseFloat(v[0], 64)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
-			}
-			wx.Temp = int(temp)
-		case "humidity":
-			humidity, err := strconv.Atoi(v[0])
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
-			}
-			wx.Humidity = humidity
-		case "hourlyrainin":
-			hourlyrainin, err := strconv.ParseFloat(v[0], 64)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
-			}
-			wx.RainLastHour = hourlyrainin
-		case "24hourrainin":
-			hourlyrainin24, err := strconv.ParseFloat(v[0], 64)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
-			}
-			wx.RainLast24Hours = hourlyrainin24
-		case "dailyrainin":
-			dailyrainin, err := strconv.ParseFloat(v[0], 64)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
-			}
-			wx.RainToday = dailyrainin
-		case "solarradiation":
-			solarradiation, err := strconv.ParseFloat(v[0], 64)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
-			}
-			wx.SolarRad = int(solarradiation)
-		case "winddir":
-			winddir, err := strconv.Atoi(v[0])
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
-			}
-			wx.WindDir = winddir
-		case "windgustmph":
-			windgustmph, err := strconv.ParseFloat(v[0], 64)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
-			}
-			wx.WindGust = int(windgustmph)
-		case "windspeedmph":
-			windspeedmph, err := strconv.ParseFloat(v[0], 64)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
-			}
-			wx.WindSpeed = int(windspeedmph)
+func awpHandlerV1(opts options) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		wx := aprs.Wx{
+			Lat:  float64(opts.latitude),
+			Lon:  float64(opts.longitude),
+			Type: opts.comment,
 		}
-	}
 
-	fmt.Printf("sending, temp(%d): %v\n", wx.Temp, wx.String())
+		// SwName are SwVers are concatenated in the 'comment' field and then
+		// immediately followed by the Wx.Type. This is performed in the upstream
+		// aprs library and looks like:
+		//
+		//   fmt.Sprintf("%s%s%s", aprs.SwName, aprs.SwVers, wx.Type)
+		//
+		// On aprs.fi a lowercase 'v%d' gets dropped, so that is why this is 'V'.
+		aprs.SwName = "wxigate-V"
+		aprs.SwVers = Version
 
-	f := aprs.Frame{
-		Dst:  aprs.Addr{Call: "APRS"},
-		Src:  aprs.Addr{Call: fmt.Sprintf("%s-%s", opts.callsign, opts.ssid)},
-		Path: aprs.Path{aprs.Addr{Call: "TCPIP", Repeated: true}},
-		Text: wx.String(),
-	}
-	err = f.SendIS("tcp://cwop.aprs.net:14580", -1) //BUG(medium) flag
-	if err != nil {
-		msg := fmt.Sprintf("Upload error: %s", err)
-		errorHandler(w, req, msg, http.StatusServiceUnavailable)
-		return
-	}
+		query := req.URL.Query()
 
-	w.WriteHeader(http.StatusOK)
+		for k, v := range query {
+			switch k {
+			case "dateutc":
+				layout := "2006-01-02 15:04:05"
+				dateutc, err := time.Parse(layout, v[0])
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+				}
+				wx.Timestamp = dateutc
+			case "baromrelin":
+				baromrelin, err := strconv.ParseFloat(v[0], 64)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+				}
+				wx.Altimeter = baromrelin
+			case "tempf":
+				temp, err := strconv.ParseFloat(v[0], 64)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+				}
+				wx.Temp = int(temp)
+			case "humidity":
+				humidity, err := strconv.Atoi(v[0])
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+				}
+				wx.Humidity = humidity
+			case "hourlyrainin":
+				hourlyrainin, err := strconv.ParseFloat(v[0], 64)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+				}
+				wx.RainLastHour = hourlyrainin
+			case "24hourrainin":
+				hourlyrainin24, err := strconv.ParseFloat(v[0], 64)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+				}
+				wx.RainLast24Hours = hourlyrainin24
+			case "dailyrainin":
+				dailyrainin, err := strconv.ParseFloat(v[0], 64)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+				}
+				wx.RainToday = dailyrainin
+			case "solarradiation":
+				solarradiation, err := strconv.ParseFloat(v[0], 64)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+				}
+				wx.SolarRad = int(solarradiation)
+			case "winddir":
+				winddir, err := strconv.Atoi(v[0])
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+				}
+				wx.WindDir = winddir
+			case "windgustmph":
+				windgustmph, err := strconv.ParseFloat(v[0], 64)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+				}
+				wx.WindGust = int(windgustmph)
+			case "windspeedmph":
+				windspeedmph, err := strconv.ParseFloat(v[0], 64)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+				}
+				wx.WindSpeed = int(windspeedmph)
+			}
+		}
+
+		fmt.Printf("sending, temp(%d): %v\n", wx.Temp, wx.String())
+
+		f := aprs.Frame{
+			Dst:  aprs.Addr{Call: "APRS"},
+			Src:  aprs.Addr{Call: fmt.Sprintf("%s-%s", opts.callsign, opts.ssid)},
+			Path: aprs.Path{aprs.Addr{Call: "TCPIP", Repeated: true}},
+			Text: wx.String(),
+		}
+		err := f.SendIS("tcp://cwop.aprs.net:14580", -1) //BUG(medium) flag
+		if err != nil {
+			msg := fmt.Sprintf("Upload error: %s", err)
+			errorHandler(w, req, msg, http.StatusServiceUnavailable)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+	})
 }
 
 func errorHandler(w http.ResponseWriter, req *http.Request, msg string, status int) {
