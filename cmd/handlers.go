@@ -11,23 +11,29 @@ import (
 )
 
 func awpHandlerV1(opts options) http.Handler {
+	wx := aprs.Wx{
+		Lat:  float64(opts.latitude),
+		Lon:  float64(opts.longitude),
+		Type: opts.comment,
+	}
+
+	// SwName are SwVers are concatenated in the 'comment' field and then
+	// immediately followed by the Wx.Type. This is performed in the upstream
+	// aprs library and looks like:
+	//
+	//   fmt.Sprintf("%s%s%s", aprs.SwName, aprs.SwVers, wx.Type)
+	//
+	// On aprs.fi a lowercase 'v%d' gets dropped, so that is why this is 'V'.
+	aprs.SwName = "wxigate-V"
+	aprs.SwVers = Version
+
+	f := aprs.Frame{
+		Dst:  aprs.Addr{Call: "APRS"},
+		Src:  opts.aprsSource,
+		Path: aprs.Path{aprs.Addr{Call: "TCPIP", Repeated: true}},
+	}
+
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		wx := aprs.Wx{
-			Lat:  float64(opts.latitude),
-			Lon:  float64(opts.longitude),
-			Type: opts.comment,
-		}
-
-		// SwName are SwVers are concatenated in the 'comment' field and then
-		// immediately followed by the Wx.Type. This is performed in the upstream
-		// aprs library and looks like:
-		//
-		//   fmt.Sprintf("%s%s%s", aprs.SwName, aprs.SwVers, wx.Type)
-		//
-		// On aprs.fi a lowercase 'v%d' gets dropped, so that is why this is 'V'.
-		aprs.SwName = "wxigate-V"
-		aprs.SwVers = Version
-
 		query := req.URL.Query()
 
 		for k, v := range query {
@@ -126,12 +132,8 @@ func awpHandlerV1(opts options) http.Handler {
 
 		fmt.Printf("sending, temp(%d): %v\n", wx.Temp, wx.String())
 
-		f := aprs.Frame{
-			Dst:  aprs.Addr{Call: "APRS"},
-			Src:  opts.aprsSource,
-			Path: aprs.Path{aprs.Addr{Call: "TCPIP", Repeated: true}},
-			Text: wx.String(),
-		}
+		f.Text = wx.String()
+
 		err := f.SendIS(opts.dial, opts.dialpass)
 		if err != nil {
 			msg := fmt.Sprintf("Upload error: %s", err)
