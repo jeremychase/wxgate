@@ -36,67 +36,89 @@ func awpHandlerV1(opts options) http.Handler {
 				layout := "2006-01-02 15:04:05"
 				dateutc, err := time.Parse(layout, v[0])
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+					msg := fmt.Sprintf("'dateutc' error: %v", err)
+					errorHandler(w, req, msg, http.StatusServiceUnavailable)
+					return
 				}
 				wx.Timestamp = dateutc
 			case "baromrelin":
 				baromrelin, err := strconv.ParseFloat(v[0], 64)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+					msg := fmt.Sprintf("'baromrelin' error: %v", err)
+					errorHandler(w, req, msg, http.StatusServiceUnavailable)
+					return
 				}
 				wx.Altimeter = baromrelin
 			case "tempf":
 				temp, err := strconv.ParseFloat(v[0], 64)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+					msg := fmt.Sprintf("'tempf' error: %v", err)
+					errorHandler(w, req, msg, http.StatusServiceUnavailable)
+					return
 				}
 				wx.Temp = int(temp)
 			case "humidity":
 				humidity, err := strconv.Atoi(v[0])
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+					msg := fmt.Sprintf("'humidity' error: %v", err)
+					errorHandler(w, req, msg, http.StatusServiceUnavailable)
+					return
 				}
 				wx.Humidity = humidity
 			case "hourlyrainin":
 				hourlyrainin, err := strconv.ParseFloat(v[0], 64)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+					msg := fmt.Sprintf("'hourlyrainin' error: %v", err)
+					errorHandler(w, req, msg, http.StatusServiceUnavailable)
+					return
 				}
 				wx.RainLastHour = hourlyrainin
 			case "24hourrainin":
 				hourlyrainin24, err := strconv.ParseFloat(v[0], 64)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+					msg := fmt.Sprintf("'24hourrainin' error: %v", err)
+					errorHandler(w, req, msg, http.StatusServiceUnavailable)
+					return
 				}
 				wx.RainLast24Hours = hourlyrainin24
 			case "dailyrainin":
 				dailyrainin, err := strconv.ParseFloat(v[0], 64)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+					msg := fmt.Sprintf("'dailyrainin' error: %v", err)
+					errorHandler(w, req, msg, http.StatusServiceUnavailable)
+					return
 				}
 				wx.RainToday = dailyrainin
 			case "solarradiation":
 				solarradiation, err := strconv.ParseFloat(v[0], 64)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+					msg := fmt.Sprintf("'solarradiation' error: %v", err)
+					errorHandler(w, req, msg, http.StatusServiceUnavailable)
+					return
 				}
 				wx.SolarRad = int(solarradiation)
 			case "winddir":
 				winddir, err := strconv.Atoi(v[0])
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+					msg := fmt.Sprintf("'winddir' error: %v", err)
+					errorHandler(w, req, msg, http.StatusServiceUnavailable)
+					return
 				}
 				wx.WindDir = winddir
 			case "windgustmph":
 				windgustmph, err := strconv.ParseFloat(v[0], 64)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+					msg := fmt.Sprintf("'windgustmph' error: %v", err)
+					errorHandler(w, req, msg, http.StatusServiceUnavailable)
+					return
 				}
 				wx.WindGust = int(windgustmph)
 			case "windspeedmph":
 				windspeedmph, err := strconv.ParseFloat(v[0], 64)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "error: %v", err) // BUG(medium) change
+					msg := fmt.Sprintf("'windspeedmph' error: %v", err)
+					errorHandler(w, req, msg, http.StatusServiceUnavailable)
+					return
 				}
 				wx.WindSpeed = int(windspeedmph)
 			}
