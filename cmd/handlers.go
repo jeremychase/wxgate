@@ -106,7 +106,7 @@ func awpHandlerV1(opts options) http.Handler {
 
 		f := aprs.Frame{
 			Dst:  aprs.Addr{Call: "APRS"},
-			Src:  aprs.Addr{Call: fmt.Sprintf("%s-%s", opts.callsign, opts.ssid)},
+			Src:  opts.aprsSource,
 			Path: aprs.Path{aprs.Addr{Call: "TCPIP", Repeated: true}},
 			Text: wx.String(),
 		}

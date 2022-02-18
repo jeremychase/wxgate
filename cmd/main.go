@@ -90,10 +90,11 @@ func validate(opts options) (options, error) {
 	if len(opts.callsign) == 0 {
 		return opts, fmt.Errorf("missing callsign")
 	}
-	if len(opts.callsign) > 8 { // BUG(medium) fix
-		return opts, fmt.Errorf("callsign too long")
-	} else if len(opts.callsign) < 3 { // BUG(medium) fix
-		return opts, fmt.Errorf("callsign too short")
+
+	// APRS source validation
+	err := opts.aprsSource.FromString(fmt.Sprintf("%s-%s", opts.callsign, opts.ssid))
+	if err != nil {
+		return opts, err
 	}
 
 	opts.callsign = strings.Trim(opts.callsign, "-")

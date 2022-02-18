@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"net"
+
+	"github.com/ebarkie/aprs"
 )
 
 type options struct {
@@ -9,6 +11,7 @@ type options struct {
 	callsign    string
 	comment     string
 	ssid        string
+	aprsSource  aprs.Addr
 	address     net.IP
 	longitude   float64
 	latitude    float64
