@@ -7,12 +7,14 @@ import (
 )
 
 type options struct {
-	argAddress  string
+	aprsSource  aprs.Addr
 	callsign    string
 	comment     string
+	dial        string
 	ssid        string
-	aprsSource  aprs.Addr
+	argAddress  string
 	address     net.IP
+	dialpass    int
 	longitude   float64
 	latitude    float64
 	port        uint

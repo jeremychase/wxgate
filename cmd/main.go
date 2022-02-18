@@ -49,6 +49,8 @@ func parseArgs() (options, error) {
 	flag.Float64Var(&opts.latitude, "latitude", 0.0, "latitude (decimal)")
 	flag.StringVar(&opts.callsign, "callsign", "", "callsign")
 	flag.StringVar(&opts.comment, "comment", "", "comment")
+	flag.StringVar(&opts.dial, "dial", "tcp://cwop.aprs.net:14580", "dial address")
+	flag.IntVar(&opts.dialpass, "dialpass", -1, "dial pass")
 	flag.StringVar(&opts.ssid, "ssid", "15", "ssid")
 	flag.UintVar(&opts.port, "port", DEFAULT_PORT, "tcp port (automatic 0)")
 	flag.StringVar(&opts.argAddress, "address", DEFAULT_ADDRESS_IPV4, "IP address")

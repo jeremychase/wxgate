@@ -132,7 +132,7 @@ func awpHandlerV1(opts options) http.Handler {
 			Path: aprs.Path{aprs.Addr{Call: "TCPIP", Repeated: true}},
 			Text: wx.String(),
 		}
-		err := f.SendIS("tcp://cwop.aprs.net:14580", -1) //BUG(medium) flag
+		err := f.SendIS(opts.dial, opts.dialpass)
 		if err != nil {
 			msg := fmt.Sprintf("Upload error: %s", err)
 			errorHandler(w, req, msg, http.StatusServiceUnavailable)
