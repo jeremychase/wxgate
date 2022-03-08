@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"wxigate/requestlog"
 )
 
 func server(opts options) error {
@@ -13,17 +14,28 @@ func server(opts options) error {
 		return err
 	}
 
+	mux := http.NewServeMux()
+
 	// Routes
-	http.HandleFunc("/", defaultHandler)
-	http.Handle("/wxigate/awp/v1", awpHandlerV1(opts))
+	mux.HandleFunc("/", defaultHandler)
+	mux.Handle("/wxigate/awp/v1", awpHandlerV1(opts))
 
 	_, err = fmt.Printf("%s-%s %f %f listening on: %s\n", opts.callsign, opts.ssid, opts.longitude, opts.latitude, listener.Addr().String())
 	if err != nil {
 		return err
 	}
 
+	var h http.Handler
+
+	// Request logging middleware
+	if opts.requestlog != nil {
+		h = requestlog.NewReqLog(mux, *opts.requestlog)
+	} else {
+		h = mux
+	}
+
 	// blocks until err
-	err = http.Serve(listener, nil)
+	err = http.Serve(listener, h)
 	if err != nil {
 		return err
 	}

@@ -51,11 +51,19 @@ func parseArgs() (options, error) {
 	flag.StringVar(&opts.comment, "comment", "", "comment")
 	flag.StringVar(&opts.dial, "dial", "tcp://cwop.aprs.net:14580", "dial address")
 	flag.IntVar(&opts.dialpass, "dialpass", -1, "dial pass")
+
+	var rl string
+	flag.StringVar(&rl, "requestlog", "", "requestlog file path (disabled if empty)")
+
 	flag.StringVar(&opts.ssid, "ssid", "15", "ssid")
 	flag.UintVar(&opts.port, "port", DEFAULT_PORT, "tcp port (automatic 0)")
 	flag.StringVar(&opts.argAddress, "address", DEFAULT_ADDRESS_IPV4, "IP address")
 
 	flag.Parse()
+
+	if len(rl) > 0 {
+		opts.requestlog = &rl
+	}
 
 	return opts, nil
 }

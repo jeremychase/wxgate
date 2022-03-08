@@ -13,6 +13,7 @@ type options struct {
 	dial        string
 	ssid        string
 	argAddress  string
+	requestlog  *string
 	address     net.IP
 	dialpass    int
 	longitude   float64
