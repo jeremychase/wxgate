@@ -36,6 +36,9 @@ func awpHandlerV1(opts options) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		query := req.URL.Query()
 
+		// Zero to avoid sending inaccurate data.
+		wx.Zero()
+
 		for k, v := range query {
 			switch k {
 			case "dateutc":
