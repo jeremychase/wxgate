@@ -10,7 +10,7 @@ type options struct {
 	aprsSource  aprs.Addr
 	callsign    string
 	comment     string
-	dial        string
+	dial        *string
 	ssid        string
 	argAddress  string
 	requestlog  *string

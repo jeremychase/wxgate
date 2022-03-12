@@ -133,15 +133,19 @@ func awpHandlerV1(opts options) http.Handler {
 			}
 		}
 
-		fmt.Printf("sending, temp(%d): %v\n", wx.Temp, wx.String())
+		if opts.dial != nil {
+			fmt.Printf("Sending, temp(%d): %v\n", wx.Temp, wx.String())
 
-		f.Text = wx.String()
+			f.Text = wx.String()
 
-		err := f.SendIS(opts.dial, opts.dialpass)
-		if err != nil {
-			msg := fmt.Sprintf("Upload error: %s", err)
-			errorHandler(w, req, msg, http.StatusServiceUnavailable)
-			return
+			err := f.SendIS(*opts.dial, opts.dialpass)
+			if err != nil {
+				msg := fmt.Sprintf("Upload error: %s", err)
+				errorHandler(w, req, msg, http.StatusServiceUnavailable)
+				return
+			}
+		} else {
+			fmt.Printf("Received but not sending, temp(%d): %v\n", wx.Temp, wx.String())
 		}
 
 		w.WriteHeader(http.StatusOK)
