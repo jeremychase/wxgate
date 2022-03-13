@@ -6,11 +6,13 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"wxigate/calcrain"
 
 	"github.com/ebarkie/aprs"
 )
 
 func awpHandlerV1(opts options) http.Handler {
+	prunings := 0
 	wx := aprs.Wx{
 		Lat:  float64(opts.latitude),
 		Lon:  float64(opts.longitude),
@@ -32,6 +34,8 @@ func awpHandlerV1(opts options) http.Handler {
 		Src:  opts.aprsSource,
 		Path: aprs.Path{aprs.Addr{Call: "TCPIP", Repeated: true}},
 	}
+
+	raindata := calcrain.Data{}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		query := req.URL.Query()
@@ -133,6 +137,22 @@ func awpHandlerV1(opts options) http.Handler {
 			}
 		}
 
+		if opts.calcRainLast24Hours {
+			raindata.Append(wx.RainToday, wx.Timestamp)
+
+			rl, pruned, err := raindata.RainLast24Hours(wx.RainToday, wx.Timestamp, opts.calcRainLast24HoursThreshold)
+
+			fmt.Printf("%v\t%v\n", len(raindata.Rain), cap(raindata.Rain))
+			if err == nil {
+				wx.RainLast24Hours = rl
+			}
+
+			if pruned {
+				prunings++
+				fmt.Printf("prunings: %v\n", prunings)
+			}
+		}
+
 		if opts.dial != nil {
 			fmt.Printf("Sending, temp(%d): %v\n", wx.Temp, wx.String())
 
@@ -145,7 +165,7 @@ func awpHandlerV1(opts options) http.Handler {
 				return
 			}
 		} else {
-			fmt.Printf("Received but not sending, temp(%d): %v\n", wx.Temp, wx.String())
+			// fmt.Printf("Received but not sending, temp(%d): %v\n", wx.Temp, wx.String())
 		}
 
 		w.WriteHeader(http.StatusOK)
