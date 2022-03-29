@@ -36,8 +36,8 @@ func (d *Data) Append(amount float64, t time.Time) {
 
 // RainLast24Hours returns rainfall over the trailing 24 hours based on
 // recorded data. This prunes old data.
-func (d *Data) RainLast24Hours(amount float64, t time.Time, threshold uint) (float64, bool, error) {
-	prev, pruned, err := d.prevNow(t, threshold)
+func (d *Data) RainLast24Hours(amount float64, t time.Time, threshold uint, verbose bool) (float64, bool, error) {
+	prev, pruned, err := d.prevNow(t, threshold, verbose)
 	if err != nil {
 		return 0.0, pruned, err
 	}
@@ -47,7 +47,7 @@ func (d *Data) RainLast24Hours(amount float64, t time.Time, threshold uint) (flo
 
 // prevNow returns cumulative rain for day previous to `t`. `threshold`
 // represents the maximum age allowed.
-func (d *Data) prevNow(t time.Time, threshold uint) (amount float64, pruned bool, err error) {
+func (d *Data) prevNow(t time.Time, threshold uint, verbose bool) (amount float64, pruned bool, err error) {
 	// x is the first data point less than 24 hours from t
 	x := sort.Search(len(d.Rain), func(i int) bool { return t.Sub(d.Rain[i].Time) < time.Hour*24 })
 
@@ -63,7 +63,9 @@ func (d *Data) prevNow(t time.Time, threshold uint) (amount float64, pruned bool
 
 	// prune old data
 	if x > len(d.Rain)/4 {
-		fmt.Printf("Pruning at:\t%v\t%v\n", x, len(d.Rain))
+		if verbose {
+			fmt.Printf("[calcrain] Pruning at\tidx:\t%v\tlen:\t%v\n", x, len(d.Rain))
+		}
 		pruned = true
 		d.Rain = append([]record(nil), d.Rain[x-x/10:]...) // keep some for future calculations
 	}

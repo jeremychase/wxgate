@@ -20,6 +20,7 @@ type options struct {
 	latitude                     float64
 	port                         uint
 	showVersion                  bool
+	verbose                      bool
 	calcRainLast24Hours          bool
 	calcRainLast24HoursThreshold uint
 }

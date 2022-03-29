@@ -140,16 +140,22 @@ func awpHandlerV1(opts options) http.Handler {
 		if opts.calcRainLast24Hours {
 			raindata.Append(wx.RainToday, wx.Timestamp)
 
-			rl, pruned, err := raindata.RainLast24Hours(wx.RainToday, wx.Timestamp, opts.calcRainLast24HoursThreshold)
+			rl, pruned, err := raindata.RainLast24Hours(wx.RainToday, wx.Timestamp, opts.calcRainLast24HoursThreshold, opts.verbose)
 
-			fmt.Printf("%v\t%v\n", len(raindata.Rain), cap(raindata.Rain))
+			if opts.verbose {
+				fmt.Printf("[calcrain] len:\t%v\tcap:\t%v\n", len(raindata.Rain), cap(raindata.Rain))
+			}
+
 			if err == nil {
 				wx.RainLast24Hours = rl
 			}
 
 			if pruned {
 				prunings++
-				fmt.Printf("prunings: %v\n", prunings)
+
+				if opts.verbose {
+					fmt.Printf("[calcrain] prunings: %v\n", prunings)
+				}
 			}
 		}
 
@@ -165,7 +171,7 @@ func awpHandlerV1(opts options) http.Handler {
 				return
 			}
 		} else {
-			// fmt.Printf("Received but not sending, temp(%d): %v\n", wx.Temp, wx.String())
+			fmt.Printf("Received but not sending, temp(%d): %v\n", wx.Temp, wx.String())
 		}
 
 		w.WriteHeader(http.StatusOK)

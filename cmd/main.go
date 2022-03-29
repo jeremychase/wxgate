@@ -45,6 +45,7 @@ func parseArgs() (options, error) {
 	opts := options{}
 
 	flag.BoolVar(&opts.showVersion, "version", false, "show version")
+	flag.BoolVar(&opts.verbose, "verbose", false, "verbose")
 	flag.Float64Var(&opts.longitude, "longitude", 0.0, "longitude (decimal)")
 	flag.Float64Var(&opts.latitude, "latitude", 0.0, "latitude (decimal)")
 	flag.StringVar(&opts.callsign, "callsign", "", "callsign")
