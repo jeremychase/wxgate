@@ -45,11 +45,14 @@ func parseArgs() (options, error) {
 	opts := options{}
 
 	flag.BoolVar(&opts.showVersion, "version", false, "show version")
+	flag.BoolVar(&opts.verbose, "verbose", false, "verbose")
 	flag.Float64Var(&opts.longitude, "longitude", 0.0, "longitude (decimal)")
 	flag.Float64Var(&opts.latitude, "latitude", 0.0, "latitude (decimal)")
 	flag.StringVar(&opts.callsign, "callsign", "", "callsign")
 	flag.StringVar(&opts.comment, "comment", "", "comment")
-	flag.StringVar(&opts.dial, "dial", "tcp://cwop.aprs.net:14580", "dial address")
+
+	var dial string
+	flag.StringVar(&dial, "dial", "tcp://cwop.aprs.net:14580", "dial address (disabled if empty)")
 	flag.IntVar(&opts.dialpass, "dialpass", -1, "dial pass")
 
 	var rl string
@@ -59,7 +62,14 @@ func parseArgs() (options, error) {
 	flag.UintVar(&opts.port, "port", DEFAULT_PORT, "tcp port (automatic 0)")
 	flag.StringVar(&opts.argAddress, "address", DEFAULT_ADDRESS_IPV4, "IP address")
 
+	flag.BoolVar(&opts.calcRainLast24Hours, "calcrain", false, "calculate trailing 24hr rainfall using daily rain")
+	flag.UintVar(&opts.calcRainLast24HoursThreshold, "calcrainmins", 15, "minutes beyond 24hr allowed for calcrain")
+
 	flag.Parse()
+
+	if len(dial) > 0 {
+		opts.dial = &dial
+	}
 
 	if len(rl) > 0 {
 		opts.requestlog = &rl

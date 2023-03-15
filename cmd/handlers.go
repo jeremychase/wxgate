@@ -6,11 +6,13 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"wxigate/calcrain"
 
 	"github.com/ebarkie/aprs"
 )
 
 func awpHandlerV1(opts options) http.Handler {
+	prunings := 0
 	wx := aprs.Wx{
 		Lat:  float64(opts.latitude),
 		Lon:  float64(opts.longitude),
@@ -32,6 +34,8 @@ func awpHandlerV1(opts options) http.Handler {
 		Src:  opts.aprsSource,
 		Path: aprs.Path{aprs.Addr{Call: "TCPIP", Repeated: true}},
 	}
+
+	raindata := calcrain.Data{}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		query := req.URL.Query()
@@ -133,15 +137,41 @@ func awpHandlerV1(opts options) http.Handler {
 			}
 		}
 
-		fmt.Printf("sending, temp(%d): %v\n", wx.Temp, wx.String())
+		if opts.calcRainLast24Hours {
+			raindata.Append(wx.RainToday, wx.Timestamp)
 
-		f.Text = wx.String()
+			rl, pruned, err := raindata.RainLast24Hours(wx.RainToday, wx.Timestamp, opts.calcRainLast24HoursThreshold, opts.verbose)
 
-		err := f.SendIS(opts.dial, opts.dialpass)
-		if err != nil {
-			msg := fmt.Sprintf("Upload error: %s", err)
-			errorHandler(w, req, msg, http.StatusServiceUnavailable)
-			return
+			if opts.verbose {
+				fmt.Printf("[calcrain] len:\t%v\tcap:\t%v\n", len(raindata.Rain), cap(raindata.Rain))
+			}
+
+			if err == nil {
+				wx.RainLast24Hours = rl
+			}
+
+			if pruned {
+				prunings++
+
+				if opts.verbose {
+					fmt.Printf("[calcrain] prunings: %v\n", prunings)
+				}
+			}
+		}
+
+		if opts.dial != nil {
+			fmt.Printf("Sending, temp(%d): %v\n", wx.Temp, wx.String())
+
+			f.Text = wx.String()
+
+			err := f.SendIS(*opts.dial, opts.dialpass)
+			if err != nil {
+				msg := fmt.Sprintf("Upload error: %s", err)
+				errorHandler(w, req, msg, http.StatusServiceUnavailable)
+				return
+			}
+		} else {
+			fmt.Printf("Received but not sending, temp(%d): %v\n", wx.Temp, wx.String())
 		}
 
 		w.WriteHeader(http.StatusOK)
