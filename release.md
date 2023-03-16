@@ -1,6 +1,15 @@
 ## Release
 
-1. Use the vscode dev container terminal
-    1. The `WXGATE_DEVELOPMENT_GITHUB_TOKEN` env var must be exported for `code`
-    1. `GITHUB_TOKEN` should now match `WXGATE_DEVELOPMENT_GITHUB_TOKEN`
-2. Perform [goreleaser instructions](https://goreleaser.com/quick-start/).
+Builds and releases are performed by [goreleaser](https://goreleaser.com/) using
+a Github Action. The releases are not yet signed.
+
+### How-to
+
+The action is configured to run when a tag is created. To create a release:
+
+1. Create a tag and push it:
+    ```
+    git tag -a v0.1.0 -m "v0.1.0"
+    git push origin v0.1.0
+    ```
+1. Check [progress](https://github.com/jeremychase/wxgate/actions/workflows/release.yml).
