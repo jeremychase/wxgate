@@ -1,6 +1,6 @@
 module wxgate
 
-go 1.17
+go 1.20
 
 require github.com/ebarkie/aprs v1.0.3
 
