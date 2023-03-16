@@ -1,4 +1,4 @@
-module wxigate
+module wxgate
 
 go 1.17
 

@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/go
 {
-	"name": "wxigate",
+	"name": "wxgate",
 	"build": {
 		// https://containers.dev/guide/dockerfile
         // Path is relative to the devcontainer.json file.
@@ -25,7 +25,7 @@
 
 	// remoteEnv sets variables for VS Code and related sub-processes (terminals, tasks, debugging, etc.):
 	"remoteEnv": {
-		"GITHUB_TOKEN": "${localEnv:WXIGATE_DEVELOPMENT_GITHUB_TOKEN}"
+		"GITHUB_TOKEN": "${localEnv:WXGATE_DEVELOPMENT_GITHUB_TOKEN}"
 	}	
 	
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.

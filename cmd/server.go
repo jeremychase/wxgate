@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"wxigate/requestlog"
+	"wxgate/requestlog"
 )
 
 func server(opts options) error {
@@ -18,7 +18,7 @@ func server(opts options) error {
 
 	// Routes
 	mux.HandleFunc("/", defaultHandler)
-	mux.Handle("/wxigate/awp/v1", awpHandlerV1(opts))
+	mux.Handle("/wxgate/awp/v1", awpHandlerV1(opts))
 
 	_, err = fmt.Printf("%s-%s %f %f listening on: %s\n", opts.callsign, opts.ssid, opts.longitude, opts.latitude, listener.Addr().String())
 	if err != nil {

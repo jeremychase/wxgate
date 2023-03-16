@@ -6,7 +6,7 @@ import (
 	"os"
 	"strconv"
 	"time"
-	"wxigate/calcrain"
+	"wxgate/calcrain"
 
 	"github.com/ebarkie/aprs"
 )
@@ -26,7 +26,7 @@ func awpHandlerV1(opts options) http.Handler {
 	//   fmt.Sprintf("%s%s%s", aprs.SwName, aprs.SwVers, wx.Type)
 	//
 	// On aprs.fi a lowercase 'v%d' gets dropped, so that is why this is 'V'.
-	aprs.SwName = "wxigate-V"
+	aprs.SwName = "wxgate-V"
 	aprs.SwVers = Version
 
 	f := aprs.Frame{

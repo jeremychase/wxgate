@@ -1,6 +1,6 @@
 # Hello
 
-`wxigate` is a commandline tool that can send weather data from Ambient Weather stations into the APRS-IS network.
+`wxgate` is a commandline tool that can send weather data from Ambient Weather stations into the APRS-IS network.
 
 ## Software Setup
 
@@ -8,7 +8,7 @@
 1. Unarchive
 1. Run it, for example:
 ```
-./wxigate -callsign YOUR_CALL -latitude 12.345 -longitude "-12.345"
+./wxgate -callsign YOUR_CALL -latitude 12.345 -longitude "-12.345"
 ```
 
 ## Weather Station setup
@@ -17,10 +17,10 @@
 1. Go to "Device List"
 1. Select the station you want data from.
 1. Click 'next' until on the 'Customized' view.
-1. Enter the IP or hostname of the machine running `wxigate`.
-1. In `Path` enter `/wxigate/awp/v1?`
+1. Enter the IP or hostname of the machine running `wxgate`.
+1. In `Path` enter `/wxgate/awp/v1?`
 1. Click 'Save'.
-1. You should start seeing packets in the stdout of `wxigate`.
+1. You should start seeing packets in the stdout of `wxgate`.
 
 ## Status
 

@@ -2,7 +2,7 @@ package main
 
 import (
 	"os"
-	"wxigate/cmd"
+	"wxgate/cmd"
 )
 
 func main() {
