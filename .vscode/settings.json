@@ -1,6 +1,13 @@
 {
     "cSpell.words": [
+        "goarch",
+        "goarm",
         "guiyomh",
+        "illumos",
+        "incpatch",
+        "ldflags",
+        "mipsle",
+        "riscv",
         "WXGATE"
     ]
 }
